@@ -5,12 +5,18 @@ using UnityEngine;
 public class Player_Stage2 : MonoBehaviour
 {
     public float speed;
+    public GameObject[] weapons;
+    public bool[] hasWeapons;
+
     float hAxis;
     float vAxis;
+
     bool wDown;
+    bool jDown;
+    bool iDown;
+
     bool isSide;       // 벽 충돌 여부
     Vector3 sideVec;   // 벽 충돌 방향
-    bool jDown;
 
     bool isJump;
     bool isDodge;
@@ -21,6 +27,8 @@ public class Player_Stage2 : MonoBehaviour
 
     Rigidbody rigid;
     Animator anim;
+
+    GameObject nearObject;
 
     void Awake()
     {
@@ -36,6 +44,7 @@ public class Player_Stage2 : MonoBehaviour
         Turn();
         Jump();
         Dodge();
+        Interation();
     }
 
     void GetInput()
@@ -44,6 +53,7 @@ public class Player_Stage2 : MonoBehaviour
         vAxis = Input.GetAxisRaw("Vertical");
         wDown = Input.GetButton("Walk");
         jDown = Input.GetButtonDown("Jump");
+        iDown = Input.GetButtonDown("Interation");
     }
 
     void Move()
@@ -95,6 +105,22 @@ public class Player_Stage2 : MonoBehaviour
         isDodge = false;
     }
 
+    void Interation()
+    {
+        if (iDown && nearObject != null && !isJump && !isDodge)
+        {
+            if (nearObject.tag == "Weapon")
+            {
+                // Item item = nearObject.GetComponent<Item>();
+                // int weaponIndex = item.value;
+                // hasWeapons[weaponIndex] = true;
+
+                Destroy(nearObject);
+            }
+        }
+    }
+
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Floor")
@@ -102,5 +128,19 @@ public class Player_Stage2 : MonoBehaviour
             anim.SetBool("isJump", false);
             isJump = false;
         }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (other.tag == "Weapon")
+            nearObject = other.gameObject;
+
+        Debug.Log(nearObject.name);
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Weapon")
+            nearObject = null;
     }
 }
